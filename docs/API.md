@@ -16,6 +16,12 @@
 | GET | `/records/export.csv` | 导出 UTF-8 CSV |
 | GET | `/sla-summary` | SLA、逾期、风险和人员工作量 |
 | POST | `/domain/decision` | 执行企业配置管理数据库专属领域规则 |
+| GET/POST | `/cmdb/configuration-items` | 配置项查询与登记 |
+| POST | `/cmdb/configuration-items/{ciCode}/discovery` | 刷新自动发现数据 |
+| POST | `/cmdb/relations` | 建立受唯一性约束的配置关系 |
+| GET | `/cmdb/impact/{ciCode}` | 执行多层服务影响分析 |
+| GET | `/cmdb/stale` | 查询长期未发现配置项 |
+| GET | `/cmdb/quality` | 查询配置数据质量指标 |
 | GET/POST | `/enterprise/controls` | 企业控制项查询与幂等创建 |
 | GET | `/enterprise/workbench` | 按组织与账期查询治理驾驶舱 |
 | GET | `/enterprise/period-status` | 查询组织账期锁定状态 |

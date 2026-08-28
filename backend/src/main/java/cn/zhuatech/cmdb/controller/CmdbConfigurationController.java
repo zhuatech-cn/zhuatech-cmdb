@@ -20,6 +20,7 @@ public class CmdbConfigurationController {
     @PostMapping("/configuration-items/{ciCode}/retire") ApiResponse<ConfigurationItem> retire(@PathVariable String ciCode){return ApiResponse.ok(service.retire(ciCode));}
     @PostMapping("/relations") ApiResponse<ConfigurationRelation> relate(@Valid @RequestBody CmdbConfigurationService.RelationRequest request){return ApiResponse.ok(service.relate(request));}
     @GetMapping("/impact/{ciCode}") ApiResponse<CmdbConfigurationService.ImpactResult> impact(@PathVariable String ciCode,@RequestParam(defaultValue="4") int maxDepth){return ApiResponse.ok(service.impact(ciCode,maxDepth));}
+    @PostMapping("/change-impact") ApiResponse<CmdbConfigurationService.ChangeImpactResult> assessChange(@Valid @RequestBody CmdbConfigurationService.ChangeImpactRequest request){return ApiResponse.ok(service.assessChange(request));}
     @GetMapping("/stale") ApiResponse<List<ConfigurationItem>> stale(@RequestParam(defaultValue="30") int days){return ApiResponse.ok(service.stale(days));}
     @GetMapping("/quality") ApiResponse<CmdbConfigurationService.QualitySummary> quality(){return ApiResponse.ok(service.quality());}
 }

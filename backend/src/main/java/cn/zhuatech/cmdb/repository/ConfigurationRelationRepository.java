@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface ConfigurationRelationRepository extends JpaRepository<ConfigurationRelation,Long> {
     boolean existsBySourceCiCodeAndTargetCiCodeAndRelationType(String source,String target,String type);
+    List<ConfigurationRelation> findBySourceCiCode(String sourceCiCode);
     List<ConfigurationRelation> findByTargetCiCode(String targetCiCode);
 }

@@ -51,12 +51,37 @@ public class CmdbConfigurationService {
     public ConfigurationRelation relate(RelationRequest request){
         get(request.sourceCiCode());get(request.targetCiCode());
         if(request.sourceCiCode().equals(request.targetCiCode()))throw bad("配置项不能依赖自身");
+        if(wouldCreateCycle(request.sourceCiCode(),request.targetCiCode())){
+            throw conflict("新增关系会形成循环依赖，已阻止保存");
+        }
         if(relations.existsBySourceCiCodeAndTargetCiCodeAndRelationType(request.sourceCiCode(),
                 request.targetCiCode(),request.relationType()))throw conflict("配置关系已存在");
         var relation=relations.save(new ConfigurationRelation(request.sourceCiCode(),
             request.targetCiCode(),request.relationType(),request.critical()));
         audit("建立配置关系",request.sourceCiCode(),request.relationType()+" -> "+request.targetCiCode());
         return relation;
+    }
+
+    public ChangeImpactResult assessChange(ChangeImpactRequest request){
+        if(request.ciCodes().size()>50)throw bad("单次变更影响评估最多支持50个配置项");
+        Set<String> affected=new LinkedHashSet<>();long critical=0;
+        for(String code:request.ciCodes()){
+            var item=get(code);if("CRITICAL".equals(item.getCriticality()))critical++;
+            var result=impact(code,request.maxDepth());
+            result.affectedItems().forEach(node->affected.add(node.ciCode()));
+            critical+=result.criticalItems();
+        }
+        List<String> blockers=new ArrayList<>();
+        if(!request.changeTicket().matches("CHG-[A-Z0-9-]{4,40}"))blockers.add("缺少有效变更单号");
+        if(critical>0&&!request.maintenanceWindowApproved()&&!request.emergencyApproved()){
+            blockers.add("关键配置项变更未取得维护窗口或紧急放行");
+        }
+        if(request.ciCodes().stream().map(this::get).anyMatch(i->"RETIRED".equals(i.getStatus()))){
+            blockers.add("变更范围包含已退役配置项");
+        }
+        String decision=blockers.isEmpty()?(critical>0||affected.size()>10?"REVIEW":"APPROVED"):"BLOCKED";
+        return new ChangeImpactResult(decision,request.changeTicket(),request.ciCodes().size(),
+            affected.size(),critical,List.copyOf(affected),List.copyOf(blockers));
     }
 
     public ImpactResult impact(String ciCode,int maxDepth){
@@ -95,6 +120,17 @@ public class CmdbConfigurationService {
         return new QualitySummary(all.size(),relations.count(),orphan,stale,withoutOwner);
     }
 
+    private boolean wouldCreateCycle(String source,String target){
+        Set<String> visited=new HashSet<>();Deque<String> queue=new ArrayDeque<>();queue.add(target);
+        while(!queue.isEmpty()){
+            String current=queue.remove();
+            if(current.equals(source))return true;
+            if(!visited.add(current))continue;
+            relations.findBySourceCiCode(current).forEach(link->queue.add(link.getTargetCiCode()));
+        }
+        return false;
+    }
+
     private ConfigurationItem get(String ciCode){
         return items.findByCiCode(ciCode).orElseThrow(()->
             new ResponseStatusException(HttpStatus.NOT_FOUND,"配置项不存在"));
@@ -115,8 +151,13 @@ public class CmdbConfigurationService {
         @NotNull LocalDateTime discoveredAt){}
     public record RelationRequest(@NotBlank String sourceCiCode,@NotBlank String targetCiCode,
         @NotBlank @Size(max=40) String relationType,boolean critical){}
+    public record ChangeImpactRequest(@NotEmpty List<@NotBlank String> ciCodes,
+        @Min(1) @Max(8) int maxDepth,@NotBlank String changeTicket,
+        boolean maintenanceWindowApproved,boolean emergencyApproved){}
     public record AffectedItem(String ciCode,int depth){}
     public record ImpactResult(String sourceCiCode,String riskLevel,int affectedCount,long criticalItems,
         int criticalLinks,List<AffectedItem> affectedItems){}
+    public record ChangeImpactResult(String decision,String changeTicket,int changedCount,int affectedCount,
+        long criticalCount,List<String> affectedCiCodes,List<String> blockers){}
     public record QualitySummary(long itemCount,long relationCount,long orphanCount,long staleCount,long withoutOwnerCount){}
 }

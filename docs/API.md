@@ -22,6 +22,7 @@
 | GET | `/cmdb/impact/{ciCode}` | 执行多层服务影响分析 |
 | GET | `/cmdb/stale` | 查询长期未发现配置项 |
 | GET | `/cmdb/quality` | 查询配置数据质量指标 |
+| POST | `/cmdb/change-impact` | 生产变更影响评估与维护窗口门禁 |
 | GET/POST | `/enterprise/controls` | 企业控制项查询与幂等创建 |
 | GET | `/enterprise/workbench` | 按组织与账期查询治理驾驶舱 |
 | GET | `/enterprise/period-status` | 查询组织账期锁定状态 |

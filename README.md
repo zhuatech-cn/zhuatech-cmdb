@@ -64,6 +64,10 @@ cd .. && cp .env.example .env && docker compose up --build
 
 开发演示账号：`admin / admin123`、`operator / operator123`。生产环境必须通过环境变量替换全部默认凭据。
 
+## 配置变更影响评估
+
+新增变更实施前的企业级影响门禁，统一核对配置项、关系图、关键依赖、责任人、维护窗口、备份、回滚测试、安全评审和变更后监控。详见[企业配置变更影响评估](docs/ENTERPRISE_CHANGE_IMPACT.md)。
+
 ## 许可与商业授权
 
 Copyright © 2026 上海如静知华信息科技有限公司。

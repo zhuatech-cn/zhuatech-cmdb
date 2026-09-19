@@ -8,12 +8,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+ */
 @RestController
 @RequestMapping("/api/enterprise/cmdb")
 public class ConfigurationChangeImpactController {
     private final ConfigurationChangeImpactService service;
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     public ConfigurationChangeImpactController(ConfigurationChangeImpactService service) { this.service = service; }
 
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     @PostMapping("/configuration-change-impact")
     public ApiResponse<?> assess(@RequestBody ConfigurationChangeImpactService.Request request) {
         return ApiResponse.ok(service.assess(request));

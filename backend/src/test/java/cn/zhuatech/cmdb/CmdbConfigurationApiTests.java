@@ -13,11 +13,17 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+ */
 @SpringBootTest
 @AutoConfigureMockMvc
 class CmdbConfigurationApiTests {
     @Autowired MockMvc mvc;
 
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     @Test
     void configurationGraphSupportsImpactAnalysisAndQualityMetrics() throws Exception {
         create("CI-DB-CORE","DATABASE","核心数据库","CRITICAL","2026-08-20T10:00:00");
@@ -40,6 +46,9 @@ class CmdbConfigurationApiTests {
             .andExpect(jsonPath("$.data.relationCount").isNumber());
     }
 
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     @Test
     void discoveryRefreshStaleDetectionAndRetirementWork() throws Exception {
         create("CI-LEGACY-001","SERVER","遗留服务器","MEDIUM","2024-01-01T00:00:00");
@@ -62,6 +71,9 @@ class CmdbConfigurationApiTests {
             .andExpect(jsonPath("$.data.status").value("RETIRED"));
     }
 
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     @Test
     void invalidAndDuplicateRelationsAreRejected() throws Exception {
         create("CI-VALID-A","APPLICATION","应用A","HIGH","2026-08-28T08:00:00");
@@ -77,6 +89,9 @@ class CmdbConfigurationApiTests {
             .andExpect(status().isBadRequest());
     }
 
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     @Test
     void dependencyCycleIsRejected() throws Exception {
         create("CI-CYCLE-A","APPLICATION","循环应用A","HIGH","2026-08-28T08:00:00");
@@ -90,6 +105,9 @@ class CmdbConfigurationApiTests {
             .andExpect(status().isConflict());
     }
 
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     @Test
     void productionChangeImpactRequiresTicketAndMaintenanceWindow() throws Exception {
         create("CI-CHANGE-DB","DATABASE","变更数据库","CRITICAL","2026-08-28T08:00:00");
@@ -111,6 +129,9 @@ class CmdbConfigurationApiTests {
             .andExpect(jsonPath("$.data.blockers.length()").value(0));
     }
 
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     private void create(String code,String type,String name,String criticality,String discoveredAt) throws Exception {
         mvc.perform(post("/api/cmdb/configuration-items").with(httpBasic("operator","operator123"))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -121,12 +142,18 @@ class CmdbConfigurationApiTests {
             .andExpect(status().isOk());
     }
 
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     private void relate(String source,String target,String type,boolean critical) throws Exception {
         mvc.perform(post("/api/cmdb/relations").with(httpBasic("operator","operator123"))
                 .contentType(MediaType.APPLICATION_JSON).content(relationBody(source,target,type,critical)))
             .andExpect(status().isOk());
     }
 
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     private String relationBody(String source,String target,String type,boolean critical){
         return "{\"sourceCiCode\":\""+source+"\",\"targetCiCode\":\""+target
             +"\",\"relationType\":\""+type+"\",\"critical\":"+critical+"}";

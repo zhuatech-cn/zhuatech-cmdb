@@ -13,19 +13,31 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.util.*;
 
+/**
+ * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+ */
 @Service
 public class CmdbConfigurationService {
     private final ConfigurationItemRepository items;
     private final ConfigurationRelationRepository relations;
     private final AuditLogRepository audits;
 
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     public CmdbConfigurationService(ConfigurationItemRepository items,
             ConfigurationRelationRepository relations,AuditLogRepository audits){
         this.items=items;this.relations=relations;this.audits=audits;
     }
 
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     public List<ConfigurationItem> list(){return items.findAllByOrderByUpdatedAtDesc();}
 
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     @Transactional
     public ConfigurationItem register(ItemRequest request){
         if(items.findByCiCode(request.ciCode()).isPresent())throw conflict("配置项编码已存在");
@@ -35,18 +47,27 @@ public class CmdbConfigurationService {
         audit("登记配置项",request.ciCode(),request.name());return item;
     }
 
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     @Transactional
     public ConfigurationItem refresh(String ciCode,DiscoveryRequest request){
         var item=get(ciCode);item.discovered(request.owner(),request.serviceCode(),request.discoveredAt());
         audit("刷新发现数据",ciCode,"责任人="+request.owner());return item;
     }
 
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     @Transactional
     public ConfigurationItem retire(String ciCode){
         var item=get(ciCode);if("RETIRED".equals(item.getStatus()))throw conflict("配置项已经退役");
         item.retire();audit("退役配置项",ciCode,item.getName());return item;
     }
 
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     @Transactional
     public ConfigurationRelation relate(RelationRequest request){
         get(request.sourceCiCode());get(request.targetCiCode());
@@ -62,6 +83,9 @@ public class CmdbConfigurationService {
         return relation;
     }
 
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     public ChangeImpactResult assessChange(ChangeImpactRequest request){
         if(request.ciCodes().size()>50)throw bad("单次变更影响评估最多支持50个配置项");
         Set<String> affected=new LinkedHashSet<>();long critical=0;
@@ -84,6 +108,9 @@ public class CmdbConfigurationService {
             affected.size(),critical,List.copyOf(affected),List.copyOf(blockers));
     }
 
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     public ImpactResult impact(String ciCode,int maxDepth){
         get(ciCode);if(maxDepth<1||maxDepth>8)throw bad("影响分析深度必须在1到8之间");
         Set<String> visited=new LinkedHashSet<>();Map<String,Integer> depths=new LinkedHashMap<>();
@@ -106,11 +133,17 @@ public class CmdbConfigurationService {
             .filter(entry->!entry.getKey().equals(ciCode)).map(entry->new AffectedItem(entry.getKey(),entry.getValue())).toList());
     }
 
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     public List<ConfigurationItem> stale(int days){
         if(days<1||days>3650)throw bad("陈旧阈值必须在1到3650天之间");
         return items.findByLastDiscoveredAtBeforeOrderByLastDiscoveredAtAsc(LocalDateTime.now().minusDays(days));
     }
 
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     public QualitySummary quality(){
         var all=items.findAll();Set<String> related=new HashSet<>();
         relations.findAll().forEach(r->{related.add(r.getSourceCiCode());related.add(r.getTargetCiCode());});
@@ -120,6 +153,9 @@ public class CmdbConfigurationService {
         return new QualitySummary(all.size(),relations.count(),orphan,stale,withoutOwner);
     }
 
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     private boolean wouldCreateCycle(String source,String target){
         Set<String> visited=new HashSet<>();Deque<String> queue=new ArrayDeque<>();queue.add(target);
         while(!queue.isEmpty()){
@@ -131,33 +167,69 @@ public class CmdbConfigurationService {
         return false;
     }
 
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     private ConfigurationItem get(String ciCode){
         return items.findByCiCode(ciCode).orElseThrow(()->
             new ResponseStatusException(HttpStatus.NOT_FOUND,"配置项不存在"));
     }
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     private ResponseStatusException conflict(String message){return new ResponseStatusException(HttpStatus.CONFLICT,message);}
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     private ResponseStatusException bad(String message){return new ResponseStatusException(HttpStatus.BAD_REQUEST,message);}
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     private void audit(String action,String no,String detail){
         var auth=SecurityContextHolder.getContext().getAuthentication();
         audits.save(new AuditLog("CMDB",action,no,auth==null?"system":auth.getName(),detail));
     }
 
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     public record ItemRequest(@NotBlank @Size(max=50) String ciCode,@NotBlank @Size(max=40) String ciType,
         @NotBlank @Size(max=120) String name,@NotBlank @Size(max=40) String organizationCode,
         @NotBlank @Size(max=60) String owner,@NotBlank @Pattern(regexp="LOW|MEDIUM|HIGH|CRITICAL") String criticality,
         @Size(max=60) String serviceCode,@NotBlank @Size(max=30) String environment,
         @NotNull LocalDateTime lastDiscoveredAt){}
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     public record DiscoveryRequest(@NotBlank @Size(max=60) String owner,@Size(max=60) String serviceCode,
         @NotNull LocalDateTime discoveredAt){}
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     public record RelationRequest(@NotBlank String sourceCiCode,@NotBlank String targetCiCode,
         @NotBlank @Size(max=40) String relationType,boolean critical){}
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     public record ChangeImpactRequest(@NotEmpty List<@NotBlank String> ciCodes,
         @Min(1) @Max(8) int maxDepth,@NotBlank String changeTicket,
         boolean maintenanceWindowApproved,boolean emergencyApproved){}
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     public record AffectedItem(String ciCode,int depth){}
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     public record ImpactResult(String sourceCiCode,String riskLevel,int affectedCount,long criticalItems,
         int criticalLinks,List<AffectedItem> affectedItems){}
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     public record ChangeImpactResult(String decision,String changeTicket,int changedCount,int affectedCount,
         long criticalCount,List<String> affectedCiCodes,List<String> blockers){}
+    /**
+     * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+     */
     public record QualitySummary(long itemCount,long relationCount,long orphanCount,long staleCount,long withoutOwnerCount){}
 }
